@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Oval } from "react-loader-spinner";
+import SearchBar from "./Components/SearchBar";
+import WeatherCard from "./Components/WeatherCard";
+import WeatherDetails from "./Components/WeatherDetails";
+import DailyForecast from "./Components/DailyForecast";
+import HourlyForecast from "./Components/HourlyForecast";
 
 function App() {
   const [input, setInput] = useState("");
@@ -25,53 +30,94 @@ function App() {
       "November",
       "December",
     ];
-
     const currentDate = new Date();
     return `${currentDate.getDate()} ${
       months[currentDate.getMonth()]
     } ${currentDate.getFullYear()}`;
   };
 
-  const search = (e) => {
-    if (e.key === "Enter") {
-      setInput("");
-      setWeather({ ...weather, loading: true });
+  // Function to fetch weather for any city
+  const fetchWeather = (cityName) => {
+    setWeather({ ...weather, loading: true });
 
-      axios
-        .get("https://api.openweathermap.org/data/2.5/weather", {
-          params: {
-            q: input,
-            units: "metric",
-            appid: "366f893d41b6387799d35436ea94cdeb", // ⚠️ replace with your own key
+    const currentWeatherCall = axios.get(
+      "https://api.openweathermap.org/data/2.5/weather",
+      {
+        params: {
+          q: cityName,
+          units: "metric",
+          appid: "366f893d41b6387799d35436ea94cdeb",
+        },
+      }
+    );
+
+    const forecastCall = axios.get(
+      "https://api.openweathermap.org/data/2.5/forecast",
+      {
+        params: {
+          q: cityName,
+          units: "metric",
+          appid: "366f893d41b6387799d35436ea94cdeb",
+        },
+      }
+    );
+
+    Promise.all([currentWeatherCall, forecastCall])
+      .then(([currentRes, forecastRes]) => {
+        setWeather({
+          loading: false,
+          data: {
+            ...currentRes.data,
+            forecast: forecastRes.data.list,
           },
-        })
-        .then((res) => {
-          setWeather({ loading: false, data: res.data, error: false });
-        })
-        .catch(() => {
-          setWeather({ ...weather, data: {}, error: true });
+          error: false,
         });
-    }
+      })
+      .catch(() => {
+        setWeather({ loading: false, data: {}, error: true });
+      });
+  };
+
+  // Default City
+  useEffect(() => {
+    fetchWeather("Fajara");
+  }, []);
+
+  const search = (e) => {
+    if (e && e.key && e.key !== "Enter") return;
+    if (!input.trim()) return;
+
+    const cityToSearch = input;
+    setInput("");
+    fetchWeather(cityToSearch);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 p-6">
-      <div className="w-full max-w-md bg-white/20 backdrop-blur-md rounded-2xl shadow-lg p-6 text-white">
-        <h2 className="text-2xl font-bold flex items-center justify-center py-4">
-          Weather App
-        </h2>
-        {/* Input */}''
-        <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Enter city name..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={search}
-            className="w-full px-4 py-2 rounded-lg bg-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          />
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-indigo-600 p-6 relative">
+      {/* Weather Icon - Top Left */}
+      <div className="absolute top-4 left-4">
+       <div className="flex items-center gap-3">
+         <div className="bg-white/20 backdrop-blur-md rounded-full p-3">
+          <svg
+            className="w-8 h-8 text-white"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
         </div>
+        <h1 className="text-3xl text-white font-bold">Weather Now</h1>
+       </div>
+      </div>
 
+      <h2 className="text-2xl text-white font-bold flex items-center justify-center py-6 mb-6">
+        How's the sky looking today?
+      </h2>
+
+      {/* Input */}
+      <SearchBar input={input} setInput={setInput} onSearch={search} />
+
+      <div>
         {/* Loader */}
         {weather.loading && (
           <div className="flex justify-center">
@@ -87,37 +133,33 @@ function App() {
         )}
 
         {/* Weather Data */}
-        {weather && weather.data && weather.data.main && (
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold">
-              {weather.data.name},{" "}
-              <span className="font-light">{weather.data.sys.country}</span>
-            </h2>
+        {weather?.data?.main && (
+          <div className="flex flex-col lg:flex-row gap-6 justify-center mt-10 max-w-7xl mx-auto">
+            <div className="flex-1 flex flex-col justify-between">
+              <div className="bg-white/20 backdrop-blur-md rounded-2xl shadow-lg text-white p-7">
+                <WeatherCard weather={weather} toDate={toDate} />
+              </div>
 
-            <p className="text-sm text-white/80">{toDate()}</p>
+              <div className="bg-white/20 backdrop-blur-md rounded-2xl shadow-lg text-white p-7">
+                <WeatherDetails weather={weather} />
+              </div>
 
-            <div className="flex flex-col items-center">
-              <img
-                src={`http://openweathermap.org/img/wn/${weather.data.weather[0].icon}@2x.png`}
-                alt="weather-icon"
-                className="w-20 h-20"
-              />
-              <p className="text-5xl font-extrabold">
-                {Math.round(weather.data.main.temp)}
-                <sup>°C</sup>
-              </p>
+              <div>
+                <h2 className="text-white text-xl font-bold text-left mb-6">
+                  Day Forecast
+                </h2>
+                <DailyForecast weather={weather} />
+              </div>
             </div>
 
-            <div>
-              <p className="capitalize text-lg">
-                {weather.data.weather[0].description}
-              </p>
-              <p className="text-sm">
-                💨 Wind Speed: {weather.data.wind.speed} m/s
-              </p>
+            <div className="flex-1 lg:max-w-md">
+              <HourlyForecast weather={weather} />
             </div>
           </div>
         )}
+      </div>
+      <div className="mt-10 text-center text-white/80">
+        Made with ❤️ 
       </div>
     </div>
   );
