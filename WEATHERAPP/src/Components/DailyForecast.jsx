@@ -36,7 +36,7 @@ const DailyForecast = ({ weather }) => {
           item.main.temp_max
         );
       }
-      console.log(`Date: ${date.toDateString()}, Day: ${dayKey1}`);
+    //  console.log(`Date: ${date.toDateString()}, Day: ${dayKey1}`);
     });
     return Object.values(dailyData);
   };

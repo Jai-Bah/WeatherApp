@@ -22,7 +22,7 @@ const WeatherCard = ({ weather, toDate }) => {
           alt="weather-icon"
           className="w-20 h-24 drop-shadow-lg"
         />
-        <p className="text-6xl font-extrabold">
+        <p className="text-4xl sm:text-5xl lg:text-6xl font-extrabold">
           {Math.round(weather.data.main.temp)}
           <sup>°C</sup>
         </p>

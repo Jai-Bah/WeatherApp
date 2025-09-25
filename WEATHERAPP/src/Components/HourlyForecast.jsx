@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 
 const HourlyForecast = ({ weather }) => {
-  const [selectedDay, setSelectedDay] = useState("");
+  
+  const currentDay = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+  });
+
+  console.log(currentDay);
+
+  const [selectedDay, setSelectedDay] = useState(currentDay);
 
   if (!weather?.data?.forecast) {
     return <div>No forecast data available</div>;

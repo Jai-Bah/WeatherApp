@@ -95,22 +95,22 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-indigo-600 p-6 relative">
       {/* Weather Icon - Top Left */}
-      <div className="absolute top-4 left-4">
-       <div className="flex items-center gap-3">
-         <div className="bg-white/20 backdrop-blur-md rounded-full p-3">
-          <svg
-            className="w-8 h-8 text-white"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-          </svg>
+      <div className="absolute top-4 left-4 ">
+        <div className="flex items-center gap-3">
+          <div className="bg-white/20 backdrop-blur-md rounded-full p-3">
+            <svg
+              className="w-8 h-8 text-white"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+          </div>
+          <h1 className="text-3xl text-white font-bold">Weather Now</h1>
         </div>
-        <h1 className="text-3xl text-white font-bold">Weather Now</h1>
-       </div>
       </div>
 
-      <h2 className="text-2xl text-white font-bold flex items-center justify-center py-6 mb-6">
+      <h2 className="text-2xl text-white font-bold flex items-center justify-center py-4 mb-4 mt-10 sm:mt-6">
         How's the sky looking today?
       </h2>
 
@@ -135,7 +135,7 @@ function App() {
         {/* Weather Data */}
         {weather?.data?.main && (
           <div className="flex flex-col lg:flex-row gap-6 justify-center mt-10 max-w-7xl mx-auto">
-            <div className="flex-1 flex flex-col justify-between">
+            <div className="flex-1 flex flex-col gap-6">
               <div className="bg-white/20 backdrop-blur-md rounded-2xl shadow-lg text-white p-7">
                 <WeatherCard weather={weather} toDate={toDate} />
               </div>
@@ -158,9 +158,7 @@ function App() {
           </div>
         )}
       </div>
-      <div className="mt-10 text-center text-white/80">
-        Made with ❤️ 
-      </div>
+      <div className="mt-10 text-center text-white/80">Made with ❤️</div>
     </div>
   );
 }
